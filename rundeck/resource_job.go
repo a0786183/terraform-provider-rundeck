@@ -289,6 +289,10 @@ func resourceRundeckJob() *schema.Resource {
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
+						"enforced_values": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
 					},
 				},
 			},
@@ -693,6 +697,7 @@ func jobFromResourceData(d *schema.ResourceData) (*JobDetail, error) {
 				StoragePath:             optionMap["storage_path"].(string),
 				Hidden:                  optionMap["hidden"].(bool),
 				MultiValueAllSelected:   optionMap["multivalue_all_selected"].(bool),
+				EnforcedValues:          optionMap["enforced_values"].(bool),
 			}
 			if option.StoragePath != "" && option.ObscureInput == false {
 				return nil, fmt.Errorf("argument \"obscure_input\" must be set to `true` when \"storage_path\" is not empty")
@@ -928,6 +933,7 @@ func jobToResourceData(job *JobDetail, d *schema.ResourceData) error {
 				"storage_path":              option.StoragePath,
 				"hidden":                    option.Hidden,
 				"multivalue_all_selected":   option.MultiValueAllSelected,
+				"enforced_values":           option.EnforcedValues,
 			}
 			optionConfigsI = append(optionConfigsI, optionConfigI)
 		}

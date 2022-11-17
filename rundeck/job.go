@@ -211,6 +211,9 @@ type JobOption struct {
 
 	// Select All Values by Default if AllowsMultipleValues is set to true
 	MultiValueAllSelected bool `xml:"multivalueAllSelected,attr,omitempty"`
+
+	// Allow only values from the list
+	EnforcedValues bool `xml:"enforcedvalues,attr,omitempty"`
 }
 
 // JobValueChoices is a specialization of []string representing a sequence of predefined values
