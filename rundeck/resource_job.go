@@ -183,6 +183,16 @@ func resourceRundeckJob() *schema.Resource {
 								Type: schema.TypeString,
 							},
 						},
+						"webhook_http_method": {
+							Type:        schema.TypeString,
+							Description: "One of `get`, `post`",
+							Optional:    true,
+						},
+						"webhook_format": {
+							Type:        schema.TypeString,
+							Description: "One of `xml`, `json`",
+							Optional:    true,
+						},
 						"plugin": {
 							Type:     schema.TypeList,
 							Optional: true,
@@ -263,6 +273,15 @@ func resourceRundeckJob() *schema.Resource {
 						},
 
 						"exposed_to_scripts": {
+							Type:     schema.TypeBool,
+							Optional: true,
+						},
+
+						"storage_path": {
+							Type:     schema.TypeString,
+							Optional: true,
+						},
+						"hidden": {
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
@@ -671,7 +690,15 @@ func jobFromResourceData(d *schema.ResourceData) (*JobDetail, error) {
 				MultiValueDelimiter:     optionMap["multi_value_delimiter"].(string),
 				ObscureInput:            optionMap["obscure_input"].(bool),
 				ValueIsExposedToScripts: optionMap["exposed_to_scripts"].(bool),
-				MultivalueAllSelected:   optionMap["multivalue_all_selected"].(bool),
+				StoragePath:             optionMap["storage_path"].(string),
+				Hidden:                  optionMap["hidden"].(bool),
+				MultiValueAllSelected:   optionMap["multivalue_all_selected"].(bool),
+			}
+			if option.StoragePath != "" && option.ObscureInput == false {
+				return nil, fmt.Errorf("argument \"obscure_input\" must be set to `true` when \"storage_path\" is not empty")
+			}
+			if option.ValueIsExposedToScripts && option.ObscureInput == false {
+				return nil, fmt.Errorf("argument \"obscure_input\" must be set to `true` when \"exposed_to_scripts\" is set to true")
 			}
 
 			for _, iv := range optionMap["value_choices"].([]interface{}) {
@@ -735,6 +762,8 @@ func jobFromResourceData(d *schema.ResourceData) (*JobDetail, error) {
 						webHook.Urls = append(webHook.Urls, iv.(string))
 					}
 					notification.WebHook = webHook
+					notification.Format = notificationMap["webhook_format"].(string)
+					notification.HttpMethod = notificationMap["webhook_http_method"].(string)
 				}
 
 				// plugin Notification
@@ -896,7 +925,9 @@ func jobToResourceData(job *JobDetail, d *schema.ResourceData) error {
 				"multi_value_delimiter":     option.MultiValueDelimiter,
 				"obscure_input":             option.ObscureInput,
 				"exposed_to_scripts":        option.ValueIsExposedToScripts,
-				"multivalue_all_selected":   option.MultivalueAllSelected,
+				"storage_path":              option.StoragePath,
+				"hidden":                    option.Hidden,
+				"multivalue_all_selected":   option.MultiValueAllSelected,
 			}
 			optionConfigsI = append(optionConfigsI, optionConfigI)
 		}
@@ -1214,6 +1245,8 @@ func readNotification(notification *Notification, notificationType string) map[s
 	}
 	if notification.WebHook != nil {
 		notificationConfigI["webhook_urls"] = notification.WebHook.Urls
+		notificationConfigI["webhook_http_method"] = notification.HttpMethod
+		notificationConfigI["webhook_format"] = notification.Format
 	}
 	if notification.Email != nil {
 		notificationConfigI["email"] = []interface{}{

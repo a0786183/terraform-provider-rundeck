@@ -92,9 +92,11 @@ type JobNotification struct {
 }
 
 type Notification struct {
-	Email   *EmailNotification   `xml:"email,omitempty"`
-	WebHook *WebHookNotification `xml:"webhook,omitempty"`
-	Plugin  *JobPlugin           `xml:"plugin"`
+	Email      *EmailNotification   `xml:"email,omitempty"`
+	WebHook    *WebHookNotification `xml:"webhook,omitempty"`
+	Plugin     *JobPlugin           `xml:"plugin"`
+	HttpMethod string               `xml:"httpMethod,omitempty"`
+	Format     string               `xml:"format,omitempty"`
 }
 
 type EmailNotification struct {
@@ -204,8 +206,11 @@ type JobOption struct {
 	// Description of the value to be shown in the Rundeck UI.
 	Description string `xml:"description,omitempty"`
 
-	// If set, all values should be selected by default.
-	MultivalueAllSelected string `xml:"multivalueAllSelected,attr,omitempty"`
+	// Hide option from job run page
+	Hidden bool `xml:"hidden,omitempty"`
+
+	// Select All Values by Default if AllowsMultipleValues is set to true
+	MultiValueAllSelected bool `xml:"multivalueAllSelected,attr,omitempty"`
 }
 
 // JobValueChoices is a specialization of []string representing a sequence of predefined values
