@@ -203,6 +203,9 @@ type JobOption struct {
 
 	// Description of the value to be shown in the Rundeck UI.
 	Description string `xml:"description,omitempty"`
+
+	// If set, all values should be selected by default.
+	MultivalueAllSelected string `xml:"multivalueAllSelected,attr,omitempty"`
 }
 
 // JobValueChoices is a specialization of []string representing a sequence of predefined values
